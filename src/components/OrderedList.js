@@ -1,12 +1,28 @@
 import styled from 'styled-components';
 import { arrayOf, shape, string } from 'prop-types';
 
-const OrderedList = ({ list }) => {
+const UnorderedList = styled.ul`
+  padding-left: 0;
 
+  li {
+    list-style: none;
+    position: relative;
+    margin-bottom: 5px;
+    padding: 3px 0 2px 0px;
+    font-weight: 700;
+    width: 100%;
+  }
+`;
+
+const OrderedList = ({ list }) => {
   return (
-    <ul>
-      {list.map(item => <li key={item.key} data-testid="item">{item.text}</li>)}
-    </ul>
+    <UnorderedList>
+      {list.map(item => 
+        <li key={item.key} data-testid="item">
+          {item.text}
+        </li>
+      )}
+    </UnorderedList>
   );
 };
 

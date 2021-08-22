@@ -2,25 +2,59 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 
-const sort = Object.freeze({
-  ASCENDING: 'ASCENDING',
-  DESCENDING: 'DESCENDING'
-});
+import Emoji from './Emoji';
 
+import { sortList } from '../utils/sortHelpers';
+import { sort } from '../utils/constants';
 
-const SortButton = ({ sortList, sortDirection }) => {
+const Input = styled.input`
+  margin: 10px;
+  max-width: 100%;
+  flex: 1 0 auto;
+  outline: 0;
+  padding: .7em 1em;
+  border: 1px solid rgba(34,36,38,.15);
+  border-radius: .3rem;
+
+  :focus {
+    border-color: #85b7d9;
+    background: #fff;
+    color: rgba(0,0,0,.8);
+  }
+`;
+
+const Button = styled.button`
+  cursor: pointer;
+  min-height: 1em;
+  outline: 0;
+  border: none;
+  margin: 0 .25em 0 0;
+  padding: .7em 1.5em .7em;
+  line-height: 1em;
+  text-decoration: none;
+  border-radius: .28571429rem;
+
+  :hover {
+    background-color: #cacbcd;
+  }
+`;
+
+const SortButton = ({ sortListOnClick, sortDirection }) => {
   return (
-    <button onClick={sortList}>
-      {sortDirection === sort.ASCENDING ? "👆" : "👇" }
-    </button>
+    <Button onClick={sortListOnClick}>
+      {sortDirection === sort.ASCENDING 
+        ? <Emoji symbol="👆" label="point-up" />
+        : <Emoji symbol="👇" label="point-down" />
+      }
+    </Button>
   );
 };
 
 const ClearButton = ({ clearAll }) => {
   return (
-    <button onClick={clearAll}>
+    <Button onClick={clearAll}>
       Clear
-    </button>
+    </Button>
   )
 }
 
@@ -31,11 +65,13 @@ const ListForm = ({ list, setList }) => {
   const clearAll = () => {
     setList([]);
     setValue('');
+    setSortDirection(sort.ASCENDING);
   }
 
   const handleKeyDown = e => {
     if (e.keyCode === 13) {
-      setList([...list, { text: e.target.value, key: uuidv4() }]);
+      const sortedList = sortList([...list, { text: e.target.value, key: uuidv4() }], sortDirection);
+      setList(sortedList);
       setValue('');
     }
   };
@@ -44,12 +80,8 @@ const ListForm = ({ list, setList }) => {
     setValue(e.target.value);
   }
 
-  const sortList = () => {
-    const sortedList = list.sort((a, b) => {
-      if (sortDirection === sort.ASCENDING) return a.text.localeCompare(b.text);
-      if (sortDirection === sort.DESCENDING) return b.text.localeCompare(a.text);
-      return 0;
-    });
+  const sortListOnClick = () => {
+    const sortedList = sortList(list, sortDirection);
 
     setList([...sortedList]);
     setSortDirection(sortDirection === sort.ASCENDING ? sort.DESCENDING : sort.ASCENDING)
@@ -57,15 +89,16 @@ const ListForm = ({ list, setList }) => {
 
   return (
     <div>
-      <input
+      <Input
         type="text"
         aria-label="list-item-input"
         onKeyDown={handleKeyDown}
         onChange={handleChange}
         value={value}
       />
-      <SortButton aria-label='sort' sortList={sortList} sortDirection={sortDirection} />
+      <SortButton aria-label='sort' sortListOnClick={sortListOnClick} sortDirection={sortDirection} />
       <ClearButton aria-label='clear' clearAll={clearAll} />
+      <hr />
     </div>
   );
 };
