@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -39,12 +39,12 @@ const Button = styled.button`
   }
 `;
 
-const SortButton = ({ sortListOnClick, sortDirection }) => {
+const SortButton = ({ sortDirectionOnClick, sortDirection }) => {
   return (
-    <Button onClick={sortListOnClick}>
+    <Button onClick={sortDirectionOnClick}>
       {sortDirection === sort.ASCENDING 
-        ? <Emoji symbol="👆" label="point-up" />
-        : <Emoji symbol="👇" label="point-down" />
+        ? <Emoji symbol="👇" label="point-down" />
+        : <Emoji symbol="👆" label="point-up" />
       }
     </Button>
   );
@@ -61,6 +61,11 @@ const ClearButton = ({ clearAll }) => {
 const ListForm = ({ list, setList }) => {
   const [value, setValue] = useState('');
   const [sortDirection, setSortDirection] = useState(sort.ASCENDING);
+
+  useEffect(() => {
+    const sortedList = sortList(list, sortDirection);
+    setList([...sortedList]);
+  }, [sortDirection]);
 
   const clearAll = () => {
     setList([]);
@@ -80,11 +85,8 @@ const ListForm = ({ list, setList }) => {
     setValue(e.target.value);
   }
 
-  const sortListOnClick = () => {
-    const sortedList = sortList(list, sortDirection);
-
-    setList([...sortedList]);
-    setSortDirection(sortDirection === sort.ASCENDING ? sort.DESCENDING : sort.ASCENDING)
+  const sortDirectionOnClick = () => {
+    setSortDirection(sortDirection === sort.ASCENDING ? sort.DESCENDING : sort.ASCENDING);  
   };
 
   return (
@@ -96,7 +98,7 @@ const ListForm = ({ list, setList }) => {
         onChange={handleChange}
         value={value}
       />
-      <SortButton aria-label='sort' sortListOnClick={sortListOnClick} sortDirection={sortDirection} />
+      <SortButton aria-label='sort' sortDirectionOnClick={sortDirectionOnClick} sortDirection={sortDirection} />
       <ClearButton aria-label='clear' clearAll={clearAll} />
       <hr />
     </div>
