@@ -1,6 +1,7 @@
 import { screen, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SortPage from '../components/SortPage';
+import { sortList } from '../utils/sortHelpers';
 
 describe('User can interact with sorting list', () => {
 
@@ -34,7 +35,7 @@ describe('User can interact with sorting list', () => {
     expect(input).not.toHaveValue('Bob');
   });
 
-  test('user can sort the list ascending', () => {
+  test('user can sort the list descending', () => {
     render(<SortPage />);
 
     expect(screen.getByText('Sorted List')).toBeInTheDocument();
@@ -47,42 +48,46 @@ describe('User can interact with sorting list', () => {
       userEvent.type(input, '{enter}');
     });
 
+    const ascendingItems = ['Amy', 'Zayne'];
     const renderedItems = screen.getAllByTestId('item');
     renderedItems.forEach((itemNode, index) => {
-      expect(itemNode.textContent).toBe(items[index])
+      expect(itemNode.textContent).toBe(ascendingItems[index])
     })
 
-    userEvent.click(screen.getByRole('button', { name: '👆' }));
+    userEvent.click(screen.getByLabelText('point-down'));
 
-    const sortedItems = ['Amy', 'Zayne'];
+    const descendingItems = ['Zayne', 'Amy'];
     const sortedRenderedItems = screen.getAllByTestId('item');
     sortedRenderedItems.forEach((itemNode, index) => {
-      expect(itemNode.textContent).toBe(sortedItems[index])
+      expect(itemNode.textContent).toBe(descendingItems[index])
     });
   });
 
-  test('user can sort the list descending', () => {
+  test('user can sort the list ascending', () => {
     render(<SortPage />);
 
     expect(screen.getByText('Sorted List')).toBeInTheDocument();
 
     const input = screen.getByRole('textbox', { name: 'list-item-input' });
-    const items = ['Bob', 'Zayne', 'Ann'];
 
+    const items = ['Bob', 'Zayne', 'Ann'];
     items.forEach(item => {
       userEvent.type(input, item);
       userEvent.type(input, '{enter}');
     });
+  
 
+    const ascendingItems = ['Ann', 'Bob', 'Zayne'];
     const renderedItems = screen.getAllByTestId('item');
+
     renderedItems.forEach((itemNode, index) => {
-      expect(itemNode.textContent).toBe(items[index])
+      expect(itemNode.textContent).toBe(ascendingItems[index])
     })
 
-    userEvent.click(screen.getByRole('button', { name: '👆' }));
-    userEvent.click(screen.getByRole('button', { name: '👇' }));
+    userEvent.click(screen.getByLabelText('point-down'));
+    userEvent.click(screen.getByLabelText('point-up'));
 
-    const sortedItems = ['Zayne', 'Bob', 'Ann'];
+    const sortedItems = ['Ann', 'Bob', 'Zayne'];
     const sortedRenderedItems = screen.getAllByTestId('item');
     sortedRenderedItems.forEach((itemNode, index) => {
       expect(itemNode.textContent).toBe(sortedItems[index])
